@@ -29,7 +29,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
 
 # input — for creating product
 class CreateProductSerializer(serializers.Serializer):
-    name        = serializers.CharField(max_length=255)
-    price       = serializers.DecimalField(max_digits=10, decimal_places=2)
+    name = serializers.CharField(max_length=255)
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
     description = serializers.CharField(required=False, allow_blank=True, default="")
-    stock       = serializers.IntegerField(default=0)
+    stock = serializers.IntegerField(default=0)

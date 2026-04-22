@@ -1,6 +1,7 @@
 # apps/products/services.py
 from django.utils.text import slugify
 from common.services import BaseService
+from common.exceptions import ServiceException
 from .models import Product
 
 
@@ -15,6 +16,7 @@ class CreateProductService(BaseService):
         self.category = category
 
     def execute(self):
+        self.__validate()
         return Product.objects.create(
             merchant=self.merchant,
             name=self.name,
@@ -35,7 +37,18 @@ class CreateProductService(BaseService):
             slug = f"{base_slug}-{counter}"
             counter += 1
         return slug
+    
+    def __validate(self):
+        if self.stock < 0:
+            raise ServiceException(
+                detail="Stock cannot be negative"
+            )
 
+        if self.price < 0:
+            raise ServiceException(
+                detail="Price cannot be negative"
+            ) 
+    
     @classmethod
     def run(cls, **kwargs):
         return cls(**kwargs).execute()

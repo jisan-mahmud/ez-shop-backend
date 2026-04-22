@@ -4,25 +4,26 @@ from common.exceptions import NotFoundException
 
 class ProductSelector:
 
-    def __init__(self, user):
+    def __init__(self, user=None):
         self.user = user
 
-    def get_for_role(self, role):
+    # LIST (role-based filtering is OK)
+    def list_for_role(self, role):
         if role == "admin":
-            # admin sees all products from all merchants
             return Product.objects.all().select_related("merchant")
 
         if role == "merchant":
-            # merchant sees only their own products
             return Product.objects.filter(
                 merchant=self.user
-            )
+            ).select_related("merchant")
 
-        # public sees only active products
-        return Product.objects.filter(is_active=True)
+        return Product.objects.filter(
+            status=Product.Status.ACTIVE
+        ).select_related("merchant")
 
-    def get_by_id_for_role(self, product_id, role):
+    # DETAIL (fetch only, no role filtering)
+    def get_by_id(self, product_id):
         try:
-            return self.get_for_role(role).get(id=product_id)
+            return Product.objects.select_related("merchant").get(id=product_id)
         except Product.DoesNotExist:
             raise NotFoundException("Product not found")

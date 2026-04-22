@@ -34,7 +34,6 @@ class RoleBasedMixin:
 
         return "public"
 
-    def get_serializer_class(self, request):
-        role = self.get_role(request)
-        # fallback to public if role not in map
+    def get_serializer_class(self):
+        role = self.get_role(self.request)
         return self.serializer_map.get(role, self.serializer_map.get("public"))
