@@ -5,11 +5,12 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.Serializer):
-    email    = serializers.EmailField()
+    email = serializers.EmailField()
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True, min_length=6)
-    phone    = serializers.CharField(max_length=20, required=False, allow_blank=True, default="")
-    role     = serializers.ChoiceField(
+    confirm_password = serializers.CharField(write_only=True, min_length=6)
+    phone = serializers.CharField(max_length=20, required=False, allow_blank=True, default="")
+    role = serializers.ChoiceField(
         choices=["merchant"],   # public cannot self-register as admin
         required=False,
         allow_blank=True,

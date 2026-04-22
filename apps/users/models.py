@@ -6,13 +6,12 @@ from users.managers import UserManager
 
 class User(AbstractUser, PermissionsMixin):
 
-    ROLE_CHOICES = (
-        ("merchant", "Merchant"),
-        ("admin",    "Admin"),
-    )
+    class Role(models.TextChoices):
+        ADMIN    = "admin",    "Admin"
+        MERCHANT = "merchant", "Merchant"
 
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=20, choices= ROLE_CHOICES, blank=True)
+    role = models.CharField(max_length=20, choices= Role.choices, blank=True)
     phone = models.CharField(max_length=20, blank=True)
 
     # attach custom manager

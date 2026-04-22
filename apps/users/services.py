@@ -1,25 +1,37 @@
 # apps/users/services.py
 from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.password_validation import validate_password
 from common.services import BaseService
-from common.exceptions import ServiceException, NotFoundException, PermissionDeniedException
+from common.exceptions import (
+    ServiceException,
+    NotFoundException, 
+    PermissionDeniedException
+)
 
 User = get_user_model()
 
 
 class RegisterUserService(BaseService):
 
-    def __init__(self, email, username, password, phone="", role=""):
+    def __init__(self, email, username, password, confirm_password, phone="", role= ""):
         self.email    = email
         self.username = username
         self.password = password
-        self.phone    = phone
-        self.role     = role
+        self.confirm_password = confirm_password
+        self.phone = phone
+        self.role = role or User.Role.MERCHANT
 
     def execute(self):
         self._validate()
         return self._create()
 
     def _validate(self):
+        if self.password != self.confirm_password:
+            raise ServiceException("Passwords do not match")
+        
+        # validate password strength
+        validate_password(self.password)
+        
         if User.objects.filter(email=self.email).exists():
             raise ServiceException("Email already registered")
         if User.objects.filter(username=self.username).exists():
@@ -27,6 +39,7 @@ class RegisterUserService(BaseService):
         # admin cannot self register — only created manually
         if self.role == "admin":
             raise ServiceException("Cannot register as admin")
+
 
     def _create(self):
         return User.objects.create_user(
@@ -71,7 +84,7 @@ class UpdateProfileService(BaseService):
 class ChangePasswordService(BaseService):
 
     def __init__(self, user, old_password, new_password):
-        self.user         = user
+        self.user = user
         self.old_password = old_password
         self.new_password = new_password
 

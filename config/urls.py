@@ -1,13 +1,12 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from .view import HelloWorldView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hello/', HelloWorldView.as_view(), name='hello-world'),
-    
+    path('api/v1/auth/', include('users.urls')),
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
