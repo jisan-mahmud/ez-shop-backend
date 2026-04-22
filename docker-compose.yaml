@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: uv_django_db
+    container_name: ez_shop_db
     env_file:
       - .env.local
     volumes:
@@ -19,8 +19,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jisan11/uv_django_web:latest
-    container_name: uv_django_web
+    image: jisan11/ez_shop_web:latest
+    container_name: ez_shop_web
     user: "0:0"
     command: >
       sh -c "python manage.py migrate &&
