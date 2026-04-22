@@ -1,7 +1,8 @@
 from django.db import transaction
+from abc import ABC, abstractmethod
 
 
-class BaseService:
+class BaseService(ABC):
     """
     All services inherit from this.
 
@@ -32,9 +33,10 @@ class BaseService:
         )
     """
 
+    @abstractmethod
     def execute(self):
-        raise NotImplementedError("Subclass must implement execute()")
-
+        ...
+        
     @classmethod
     def run(cls, **kwargs):
         """Shortcut — creates instance and calls execute() in one line."""
