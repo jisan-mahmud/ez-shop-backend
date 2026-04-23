@@ -3,11 +3,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 
 from common.mixins import RoleBasedMixin
 from common.permissions import IsMerchant
 
-from .models import Product
 from .serializers import (
     PublicProductSerializer,
     MerchantProductSerializer,
@@ -18,6 +20,7 @@ from .services import (
     CreateProductService,
 )
 from .selectors import ProductSelector
+from .paginations import ProductPagination
 
 
 class MerchantProductCreateView(CreateAPIView):
@@ -51,6 +54,7 @@ class ProductListView(RoleBasedMixin, ListAPIView):
     search_fields = ["name", "description"]
     ordering_fields = ["price", "created_at"]
     ordering = ["-created_at"]
+    pagination_class = ProductPagination
     
     serializer_map = {
         'admin': AdminProductSerializer,
@@ -62,6 +66,8 @@ class ProductListView(RoleBasedMixin, ListAPIView):
         tags=["Products"],
         summary="List active products",
     )
+    @method_decorator(cache_page(60 * 15, key_prefix="product_list"))
+    @method_decorator(vary_on_headers("Authorization"))
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
@@ -89,5 +95,7 @@ class ProductDetailView(RoleBasedMixin, RetrieveAPIView):
         tags=["Products"],
         summary="Get product detail",
     )
+    @method_decorator(cache_page(60 * 10, key_prefix= 'product_details'))
+    @method_decorator(vary_on_headers("Authorization"))
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
