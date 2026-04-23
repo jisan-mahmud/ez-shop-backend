@@ -14,6 +14,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  redis:
+    image: redis:7-alpine
+    container_name: ez_shop_redis
+    command: redis-server --maxmemory 300mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - django_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build:
@@ -33,14 +47,24 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - .:/app
     networks:
       - django_net
     restart: unless-stopped
+    healthcheck:
+      test: >
+        python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/').read()"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   django_net:

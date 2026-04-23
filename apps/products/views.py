@@ -44,6 +44,7 @@ class MerchantProductCreateView(CreateAPIView):
         return super().post(request, *args, **kwargs)
 
 class ProductListView(RoleBasedMixin, ListAPIView):
+    """ Role-based view → list of products. """
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["category"]
@@ -69,7 +70,7 @@ class ProductListView(RoleBasedMixin, ListAPIView):
 
 
 class ProductDetailView(RoleBasedMixin, RetrieveAPIView):
-    """Public → single product detail."""
+    """ Role-based view → single product detail."""
     permission_classes = [AllowAny]
     lookup_field  = "pk"
     lookup_url_kwarg = "product_id"
