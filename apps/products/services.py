@@ -1,5 +1,5 @@
-# apps/products/services.py
 from django.utils.text import slugify
+from django.core.cache import cache
 from common.services import BaseService
 from common.exceptions import ServiceException
 from .models import Product
@@ -17,6 +17,7 @@ class CreateProductService(BaseService):
 
     def execute(self):
         self.__validate()
+        cache.delete_pattern("*product_list*")
         return Product.objects.create(
             merchant=self.merchant,
             name=self.name,
